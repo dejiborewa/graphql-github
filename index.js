@@ -2,7 +2,7 @@ const access_token = ""; // insert your github personal access token
 
 const query = {
   query: `{
-        user(login: "dejiborewa") {
+        viewer {
             bio
             name
             avatarUrl
