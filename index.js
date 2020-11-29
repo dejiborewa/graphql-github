@@ -6,7 +6,7 @@ const query = {
             bio
             name
             avatarUrl
-            twitterUsername
+            login
             followers {
               totalCount
             }
@@ -20,13 +20,12 @@ const query = {
                     stargazers {
                       totalCount
                     }
-                    pushedAt
                     forks {
                       totalCount
                     }
                     pushedAt
                     url
-                    languages(orderBy: {field: SIZE, direction: DESC}, first: 3) {
+                    languages(first: 3, orderBy: {field: SIZE, direction: DESC}) {
                       nodes {
                         name
                         color
@@ -63,8 +62,7 @@ async function fetchData(url, options) {
     const img_small = document.createElement("img");
     const arrayOfRepos = data.data.viewer.repositories.nodes;
     document.getElementById("my-name").textContent = data.data.viewer.name;
-    document.getElementById("username").textContent =
-      data.data.viewer.twitterUsername;
+    document.getElementById("username").textContent = data.data.viewer.login;
     document.getElementById("bio").textContent = data.data.viewer.bio;
     document.getElementById("followers").textContent =
       data.data.viewer.followers.totalCount;
@@ -86,8 +84,6 @@ async function fetchData(url, options) {
       const repoDescription = document.createElement("div");
       const button = document.createElement("button");
       const labels = document.createElement("div");
-      const stars = document.createElement("span");
-      const forks = document.createElement("span");
       const pushedAt = document.createElement("span");
       const language = document.createElement("span");
       const languageColor = document.createElement("span");
@@ -115,25 +111,48 @@ async function fetchData(url, options) {
       repoName.textContent = repo.name;
       repoName.href = repo.url;
       repoDescription.textContent = repo.description;
-      stars.innerHTML = `<svg class="octicon octicon-star text-gray-light" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25zm0 2.445L6.615 5.5a.75.75 0 01-.564.41l-3.097.45 2.24 2.184a.75.75 0 01.216.664l-.528 3.084 2.769-1.456a.75.75 0 01.698 0l2.77 1.456-.53-3.084a.75.75 0 01.216-.664l2.24-2.183-3.096-.45a.75.75 0 01-.564-.41L8 2.694v.001z"></path></svg>
-      <span>${repo.stargazers.totalCount}</span>`;
-      forks.innerHTML = `<svg aria-label="fork" class="octicon octicon-repo-forked" viewBox="0 0 16 16" version="1.1" width="16" height="16" role="img"><path fill-rule="evenodd" d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path></svg><span>${repo.forks.totalCount}</span>`;
       pushedAt.textContent = `Updated on ${
         month[Number(pushedAtMonth) - 1]
       } ${pushedAtDay}, ${pushedAtYear}`;
       button.innerHTML = `<svg class="octicon octicon-star text-gray-light" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true"><path fill-rule="evenodd" fill="#586069" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25zm0 2.445L6.615 5.5a.75.75 0 01-.564.41l-3.097.45 2.24 2.184a.75.75 0 01.216.664l-.528 3.084 2.769-1.456a.75.75 0 01.698 0l2.77 1.456-.53-3.084a.75.75 0 01.216-.664l2.24-2.183-3.096-.45a.75.75 0 01-.564-.41L8 2.694v.001z"></path></svg>
       <span>Star</span>`;
-      language.textContent = repo.languages.nodes[0].name;
-      languageColor.style.backgroundColor = repo.languages.nodes[0].color;
+
+      // If repo has highlighted languages
+      if (repo.languages.nodes.length >= 1) {
+        language.textContent = repo.languages.nodes[0].name;
+        languageColor.style.backgroundColor = repo.languages.nodes[0].color;
+
+        language.classList.add("language");
+        languageColor.classList.add("language-color");
+
+        for (let i = 0; i < 1; i++) {
+          labels.appendChild(languageColor);
+          labels.appendChild(language);
+        }
+      }
+
+      // if stars and forks are more than zero
+      if (repo.stargazers.totalCount > 0) {
+        const stars = document.createElement("span");
+        const forks = document.createElement("span");
+
+        stars.innerHTML = `<svg class="octicon octicon-star text-gray-light" height="16" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25zm0 2.445L6.615 5.5a.75.75 0 01-.564.41l-3.097.45 2.24 2.184a.75.75 0 01.216.664l-.528 3.084 2.769-1.456a.75.75 0 01.698 0l2.77 1.456-.53-3.084a.75.75 0 01.216-.664l2.24-2.183-3.096-.45a.75.75 0 01-.564-.41L8 2.694v.001z"></path></svg>
+                          <span>${repo.stargazers.totalCount}</span>`;
+        forks.innerHTML = `<svg aria-label="fork" class="octicon octicon-repo-forked" viewBox="0 0 16 16" version="1.1" width="16" height="16" role="img"><path fill-rule="evenodd" d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path></svg><span>${repo.forks.totalCount}</span>`;
+
+        stars.classList.add("repo-star");
+        forks.classList.add("repo-forks");
+
+        for (let i = 0; i < 1; i++) {
+          labels.appendChild(stars);
+          labels.appendChild(forks);
+        }
+      }
 
       // Adding classes
       repoName.classList.add("repo-name");
       repoDescription.classList.add("repo-description");
-      stars.classList.add("repo-star");
-      forks.classList.add("repo-forks");
       pushedAt.classList.add("pushedAt");
-      language.classList.add("language");
-      languageColor.classList.add("language-color");
       button.classList.add("button-star");
 
       // Creating variables for DOM elements with different multiple children
@@ -146,13 +165,9 @@ async function fetchData(url, options) {
       individualRepoStar.classList.add("individualRepoStar");
 
       // Appending multiple elements to one DOM Element
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 1; i++) {
         individualRepoData.appendChild(repoName);
         individualRepoData.appendChild(repoDescription);
-        labels.appendChild(languageColor);
-        labels.appendChild(language);
-        labels.appendChild(stars);
-        labels.appendChild(forks);
         labels.appendChild(pushedAt);
         individualRepoStar.appendChild(button);
       }
