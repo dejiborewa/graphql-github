@@ -61,21 +61,21 @@ async function fetchData(url, options) {
     const data = await response.json();
     const img = document.createElement("img");
     const img_small = document.createElement("img");
-    const arrayOfRepos = data.data.user.repositories.nodes;
-    document.getElementById("my-name").textContent = data.data.user.name;
+    const arrayOfRepos = data.data.viewer.repositories.nodes;
+    document.getElementById("my-name").textContent = data.data.viewer.name;
     document.getElementById("username").textContent =
-      data.data.user.twitterUsername;
-    document.getElementById("bio").textContent = data.data.user.bio;
+      data.data.viewer.twitterUsername;
+    document.getElementById("bio").textContent = data.data.viewer.bio;
     document.getElementById("followers").textContent =
-      data.data.user.followers.totalCount;
+      data.data.viewer.followers.totalCount;
     document.getElementById("following").textContent =
-      data.data.user.following.totalCount;
+      data.data.viewer.following.totalCount;
     document.getElementById("starredRepo").textContent =
-      data.data.user.starredRepositories.totalCount;
+      data.data.viewer.starredRepositories.totalCount;
     document.getElementById("repo-number").textContent =
-      data.data.user.repositories.totalCount;
-    img.src = data.data.user.avatarUrl;
-    img_small.src = data.data.user.avatarUrl;
+      data.data.viewer.repositories.totalCount;
+    img.src = data.data.viewer.avatarUrl;
+    img_small.src = data.data.viewer.avatarUrl;
     img.alt = "Change your avatar";
     document.getElementById("avatar").appendChild(img);
     document.getElementById("avatar-small").appendChild(img_small);
